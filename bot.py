@@ -1,20 +1,13 @@
-from random import random
 import datetime
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-import requests
-import json
-
 from telebot.types import Message
 
-import time
-import threading
 import telebot
 from telebot import types
 import time
 from datetime import datetime
-import schedule
 
 bot_client = telebot.TeleBot(token='5700392822:AAFC9oLvp0-HmcbREdYEy7eEAo8rLaZEyy8')
 ADMIN_CHAT_ID = 5700392822
@@ -28,16 +21,15 @@ sheet = client.open('API Python').sheet1
 
 col_mat = sheet.col_values(1)
 col_vid = sheet.col_values(2)
-#print(col_vid)
 
-@bot_client.message_handler(commands=['start'])
+@bot_client.message_handler(commands=['start']) # Функция, которая будет вызываться при команде /start
 def start(message: Message):
     bot_client.send_message(message.chat.id, f'Привет, {str(message.chat.first_name)}!\n'
                                             'Я бот, который поможет тебе изучить программирование на языке Python.\n'
                                             'Напиши /help, если хочешь получить видео-лекции или материалы для изучения\n'
                                             'Напиши /begin, если хочешь, чтобы я напоминал тебе о продолжении обучения\n')
 
-@bot_client.message_handler(commands=['help'])
+@bot_client.message_handler(commands=['help']) # Функция, которая будет вызываться при команде /help
 def handle_start_help(message):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     # bot_client.send_message(message.chat.id, col_vid, reply_markup=keyboard)
@@ -47,7 +39,7 @@ def handle_start_help(message):
     bot_client.send_message(message.chat.id, 'Чтобы получить видео-лекции нажми на кнопку "Видео-Лекции".\n'
                                              'Чтобы получить дополнительные материалы нажми на кнопку "Дополнительные Материалы".\n', reply_markup=keyboard)
 
-@bot_client.callback_query_handler(func=lambda call: True)
+@bot_client.callback_query_handler(func=lambda call: True) # Функция, которая будет вызываться при нажатии на кнопку "Видео-Лекции" или "Дополнительные Материалы"
 def callback_inline(call):
     try:
         if call.message:
@@ -63,7 +55,6 @@ def callback_inline(call):
                 keyboard.add(vid1_button, vid2_button, vid3_button, vid4_button, vid5_button, vid6_button, vid7_button)
                 bot_client.send_message(call.message.chat.id, 'Советую тебе смотреть видео-лекции по порядку, чтобы ты ни в чем не запутался\n'
                                                               'Удачи!\n', reply_markup=keyboard)
-                #print(col_vid[3])
             elif call.data == 'Material':
                 keyboard = types.InlineKeyboardMarkup(row_width=1)
                 mat1_button = types.InlineKeyboardButton(text='Онлайн компилятор Python', url=col_mat[1])
@@ -77,13 +68,13 @@ def callback_inline(call):
     except Exception as e:
         print(repr(e))
 
-@bot_client.message_handler(commands=['begin'])
+@bot_client.message_handler(commands=['begin']) # Функция, которая будет вызываться при нажатии на кнопку "Begin"
 def begin(message: Message):
     bot_client.send_message(message.chat.id, 'Настрой меня, чтобы я напоминал тебе о продолжении твоего обучения.')
     bot_client.send_message(message.chat.id, 'Введи время, в которое ты хочешь, чтобы я присылал уведомление.\n'
                                              'Например: 12:00, 03:00, 23:00\n')
 
-@bot_client.message_handler(content_types=['text'])
+@bot_client.message_handler(content_types=['text']) # Функция, которая будет вызываться, когда пользователь введет время
 def vremyapolzovatelya(message):
     vremya = message.text
     while True:
